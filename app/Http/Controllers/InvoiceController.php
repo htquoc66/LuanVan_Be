@@ -7,10 +7,13 @@ use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
 {
-    public function index(){
-        $invoices = Invoice::orderBy('created_at', 'DESC')->get();
+    public function index()
+    {
+        $invoices = Invoice::orderBy('created_at', 'DESC')
+            ->with('user') // Sử dụng with() để tải dữ liệu của mối quan hệ "user"
+            ->get();
+    
         return response()->json($invoices);
-
     }
 
     public function store(Request $request){

@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('law_texts', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('file'); // Đường dẫn đến tệp tin
+            $table->string('file'); 
             $table->date('effective_date');
             $table->string('status');
             $table->timestamps();

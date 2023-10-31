@@ -14,6 +14,8 @@ class LawText extends Model
         'file',
         'effective_date',
         'status',
+        'category_id',
+
     ];
 
     public function notarizedDocuments()

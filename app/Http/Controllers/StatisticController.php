@@ -51,10 +51,12 @@ class StatisticController extends Controller
 
         return response()->json($formattedData);
     }
+
     public function getRevenueByCategory($minDate, $maxDate)
     {
         // Truy vấn CSDL để lấy danh sách hồ sơ và doanh thu theo từng loại
         $revenueData = NotarizedDocument::whereBetween('date', [$minDate, $maxDate])
+            ->where('status', 5)
             ->select('category_id', \DB::raw('SUM(total_cost) as total_revenue'))
             ->groupBy('category_id')
             ->get();

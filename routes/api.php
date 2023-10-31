@@ -20,6 +20,8 @@ use App\Http\Controllers\StorageController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\EnvConfigController;
 use App\Http\Controllers\StatisticController;
+use App\Http\Controllers\ReviewController;
+
 
 
 Route::get('/documentCountsByCategory/{minDate}/{maxDate}', [StatisticController::class, 'getDocumentCountsByCategory']);
@@ -81,12 +83,15 @@ Route::apiResource('lawTexts', LawTextController::class);
 Route::post('lawTexts/{id}', [LawTextController::class, 'update']); 
 
 Route::get('notarizedDocuments/status-{status}/user-{userId}', [NotarizedDocumentController::class, 'getNotarizedDocuments']);
-Route::get('notarizedDocuments/user-{userId}', [NotarizedDocumentController::class, 'getAll']);
+Route::get('notarizedDocuments/user-{userId}', [NotarizedDocumentController::class, 'getDocumentsByUser']);
+Route::get('notarizedDocuments/customer-{customerId}', [NotarizedDocumentController::class, 'getDocumentsByCustomer']);
+
 Route::apiResource('notarizedDocuments', NotarizedDocumentController::class);
 Route::post('notarizedDocuments/{id}', [NotarizedDocumentController::class, 'update']); 
 Route::post('generateDocument/{id}', [NotarizedDocumentController::class, 'generateDocument']);
 
-
+Route::get('check-customer/{customer_id}', [ReviewController::class, 'checkCustomerNotarizedDocument']); 
+Route::apiResource('reviews', ReviewController::class); 
 Route::apiResource('invoices', InvoiceController::class); 
 Route::apiResource('costTypes', CostTypeController::class);
 Route::apiResource('costs', CostController::class);

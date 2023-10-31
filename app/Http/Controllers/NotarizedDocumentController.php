@@ -28,7 +28,7 @@ class NotarizedDocumentController extends Controller
     }
 
     // lấy tất cả hồ sơ của 1 user
-    public function getAll($userId)
+    public function getDocumentsByUser($userId)
     {
        // Lấy tất cả hồ sơ của người dùng có $userId
         $userDocuments = NotarizedDocument::whereHas('users', function ($query) use ($userId) {
@@ -40,6 +40,23 @@ class NotarizedDocumentController extends Controller
         // Trả về danh sách tài liệu công chứng dưới dạng JSON
         return response()->json(NotarizedDocumentResource::collection($userDocuments), 200);
     }
+
+    public function getDocumentsByCustomer($customerId)
+    {
+        // Lấy tất cả hồ sơ liên quan đến customer có $customerId
+        $customerDocuments = NotarizedDocument::whereHas('customers', function ($query) use ($customerId) {
+            $query->where('customer_id', $customerId);
+        })
+        ->where('status', '!=', 1) // Thêm điều kiện status khác 1
+
+        ->orderBy('created_at', 'DESC')
+        ->get();
+
+        // Trả về danh sách tài liệu công chứng dưới dạng JSON
+        return response()->json(($customerDocuments));
+    }
+
+
     public function getNotarizedDocuments($status, $userId)
     {
         $notarizedDocuments = NotarizedDocument::where('status', $status)
@@ -277,7 +294,7 @@ class NotarizedDocumentController extends Controller
     {
         // Lấy tên tệp template và đường dẫn đến tệp template
         $templateFileName = $request->input('ten_file');
-        $templateFilePath = public_path('storage/' . $templateFileName);
+        $templateFilePath = public_path('storage/forms/' . $templateFileName);
 
         // Kiểm tra xem tệp template có tồn tại không
         if (!file_exists($templateFilePath)) {
@@ -294,16 +311,16 @@ class NotarizedDocumentController extends Controller
                 'ten_b','nam_sinh_b', 'cccd_b','ngay_cccd_b', 'dia_chi_b', 'noi_dung', 'ten_ccv'
             ];
         }
-        if($id == 2){
+        else if($id == 2){
             $fields = [
                 'ngay_thang', 'ten_a1', 'nam_sinh_a1', 'cccd_a1','ngay_cccd_a1','dia_chi_a1',
-                'ten_a2', 'nam_sinh_a2', 'cccd_a2','ngay_cccd_a3', 'dia_chi_a2',
+                'ten_a2', 'nam_sinh_a2', 'cccd_a2','ngay_cccd_a2', 'dia_chi_a2',
                 'ten_b1', 'nam_sinh_b1', 'cccd_b1','ngay_cccd_b1', 'dia_chi_b1',
                 'ten_b2', 'nam_sinh_b2', 'cccd_b2','ngay_cccd_b2', 'dia_chi_b2',
                 'so_thua', 'to_ban_do', 'dia_chi_dat', 'dien_tich', 'sd_rieng', 'sd_chung', 'muc_dich_sd', 'hsd', 'nguon_goc', 'gt', 'gt_chu', 'pttt', 'ten_ccv'
             ];
         }
-        if($id == 3){
+        else if($id == 3){
             $fields = [
                 'ngay_thang', 'ten_a1', 'nam_sinh_a1', 'cccd_a1', 'ngay_cccd_a1', 'dia_chi_a1',
                 'ten_a2', 'nam_sinh_a2', 'cccd_a2', 'ngay_cccd_a2', 'dia_chi_a2',
@@ -311,7 +328,17 @@ class NotarizedDocumentController extends Controller
                 'bs_xe', 'so_dk', 'ngay_cap_dk', 'nhan_hieu', 'dung_tich', 'loai_xe', 'mau_son', 'so_may', 'so_khung', 'ngay_het_han',
                 'gt', 'gt_chu', 'pttt', 'ten_ccv',
             ];
-        }        
+        }    
+        else{
+            $fields = [
+                'ngay_thang', 'ten_a1', 'nam_sinh_a1', 'cccd_a1','ngay_cccd_a1','dia_chi_a1',
+                'ten_a2', 'nam_sinh_a2', 'cccd_a2','ngay_cccd_a3', 'dia_chi_a2',
+                'ten_b1', 'nam_sinh_b1', 'cccd_b1','ngay_cccd_b1', 'dia_chi_b1',
+                'ten_b2', 'nam_sinh_b2', 'cccd_b2','ngay_cccd_b2', 'dia_chi_b2',
+                'ten_ccv'
+            ];
+
+        }    
 
         foreach ($fields as $field) {
             $value = $request->input($field);

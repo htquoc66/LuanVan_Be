@@ -20,6 +20,7 @@ class LawTextController extends Controller
             'file' => 'required|file',
             'effective_date' => 'required|date',
             'status' => 'nullable|string',
+            'category_id' => 'required',
         ], [
             'name.required' => 'Trường tên là bắt buộc.',
             'name.unique' => 'Tên đã tồn tại trong cơ sở dữ liệu.',
@@ -75,6 +76,7 @@ class LawTextController extends Controller
             'name' => 'required|string',
             'effective_date' => 'required|date',
             'status' => 'nullable|string',
+            'category_id' => 'required',
         ], [
             'name.required' => 'Trường tên là bắt buộc.',
             'effective_date.required' => 'Trường ngày hiệu lực là bắt buộc.',
