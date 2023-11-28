@@ -17,6 +17,7 @@ class StorageResource extends JsonResource
         return [
             'id' => $this->id,
             'file' => $this->file,
+            'zip_password' => $this->zip_password,
             'category' => $this->notarizedDocument->category,
             'notarized_document' => $this->notarizedDocument,
 

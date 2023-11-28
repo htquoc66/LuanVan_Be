@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Storage;
 use App\Http\Resources\StorageResource;
 use App\Jobs\UploadImportToGoogleDrive;
+use PhpZip\ZipFile;
 
 
 class StorageController extends Controller
@@ -45,32 +46,49 @@ class StorageController extends Controller
         if (!$storage) {
             return response()->json(['message' => 'Storage not found'], 404);
         }
-    
+
         $validatedData = $request->validate([
             'file' => 'required',
+            'zip_password' => 'required',
         ]);
-    
+
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $fileName = $file->getClientOriginalName();
+            $notarizedDocumentId = $storage->notarized_document_id;
+
+            // Lấy đuôi file ban đầu
+            $fileExtension = $file->getClientOriginalExtension();
+
+            // Đặt tên file theo định dạng "HoSo" + notarized_document_id + đuôi file ban đầu
+            $fileName = "HoSo{$notarizedDocumentId}.{$fileExtension}";
+
             $file->move(public_path('storage'), $fileName);
             $filePath = public_path('storage') . '/' . $fileName;
-    
-            // Gọi hàm uploadToGoogleDrive để tải lên tệp lên Google Drive và nhận ID Drive
-            $driveFileId = $this->uploadToGoogleDrive($fileName, $filePath);
-    
+
+            // Nén tệp và đặt mật khẩu
+            $zipFileName = pathinfo($fileName, PATHINFO_FILENAME) . '.zip';
+            $zipFilePath = public_path('storage') . '/' . $zipFileName;
+
+            $zipFile = new ZipFile();
+            $zipFile->addFile($filePath, $fileName);
+            $zipFile->setPassword($validatedData['zip_password']); // Sử dụng mật khẩu được truyền từ client
+            $zipFile->saveAsFile($zipFilePath);
+
+            // Gọi hàm uploadToGoogleDrive để tải lên tệp nén lên Google Drive và nhận ID Drive
+            $driveFileId = $this->uploadToGoogleDrive($zipFileName, $zipFilePath);
+
             // Cập nhật trường 'file' của bảng Storage với ID Drive mới
             $validatedData['file'] = $driveFileId;
-    
-            // Sau khi tải lên thành công, xóa tệp cục bộ
+
+            // Sau khi tải lên thành công, xóa tệp cục bộ và tệp nén
             unlink($filePath);
+            unlink($zipFilePath);
         }
-    
+
         $storage->update($validatedData);
-    
+
         return response()->json(['success' => true], 200);
     }
-    
 
     private function uploadToGoogleDrive($fileName, $filePath)
     {

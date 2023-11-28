@@ -10,6 +10,7 @@ class Storage extends Model
     use HasFactory;
     protected $fillable = [
         'file',
+        'zip_password',
         'notarized_document_id'
     ]; 
 

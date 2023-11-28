@@ -108,17 +108,23 @@ class ReviewController extends Controller
 
     public function checkCustomerNotarizedDocument($customer_id)
     {
-        // Truy vấn cơ sở dữ liệu để kiểm tra xem có bản ghi với `customer_id` cụ thể trong bảng `customer_notarized_document` hay không
-        $hasRecord = CustomerNotarizedDocument::where('customer_id', $customer_id)->exists();
+        // Đếm số lượng đánh giá của khách hàng
+        $reviewCount = Review::where('customer_id', $customer_id)->count();
     
-        if ($hasRecord) {
-            // Có bản ghi trong bảng `customer_notarized_document` với `customer_id` cụ thể
-            return response()->json(['success' => true, 'message' => 'Bản ghi tồn tại.']);
+        // Đếm số lượng hồ sơ trong bảng `customer_notarized_document` với `customer_id` cụ thể
+        $documentCount = CustomerNotarizedDocument::where('customer_id', $customer_id)->count();
+    
+        // So sánh số lượng hồ sơ và số lượng đánh giá
+        if ($documentCount >= $reviewCount) {
+            // Không thể đánh giá thêm
+            return response()->json(['success' => false]);          
         } else {
-            // Không có bản ghi trong bảng `customer_notarized_document` với `customer_id` cụ thể
-            return response()->json(['success' => false, 'message' => 'Bản ghi không tồn tại.']);
+            // Có thể đánh giá
+            return response()->json(['success' => true]);
+          
         }
     }
+    
     
 
 }

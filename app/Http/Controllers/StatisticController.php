@@ -13,6 +13,7 @@ class StatisticController extends Controller
     {
         // Truy vấn CSDL để lấy danh mục và số lượng hồ sơ theo danh mục
         $documentCounts = NotarizedDocument::whereBetween('date', [$minDate, $maxDate])
+            ->where('status', 5)
             ->select('category_id', \DB::raw('COUNT(id) as document_count'))
             ->groupBy('category_id')
             ->get();
