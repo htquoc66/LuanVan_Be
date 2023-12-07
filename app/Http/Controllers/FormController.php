@@ -11,7 +11,7 @@ class FormController extends Controller
 {
     public function index()
     {
-        $forms = Form::orderBy('created_at', 'DESC')->get();
+        $forms = Form::with('category')->orderBy('created_at', 'DESC')->get();
         return response()->json($forms);
     }
 

@@ -18,9 +18,13 @@ class CategoryController extends Controller
     {
         $validatedData =  $request->validate([
             'name' => 'required|string', 
+            'price' => 'required|string', 
+
         ],
         [
             'name.required' => 'Trường tên danh mục là bắt buộc.',
+            'price.required' => 'Trường phí hồ sơ là bắt buộc.',
+
 
         ]);
 
@@ -59,9 +63,14 @@ class CategoryController extends Controller
 
         $validatedData =  $request->validate([
             'name' => 'required|string', 
+            'price' => 'required|string', 
+
         ],
         [
             'name.required' => 'Trường tên danh mục là bắt buộc.',
+            'price.required' => 'Trường phí hồ sơ là bắt buộc.',
+
+
         ]);
 
         try{

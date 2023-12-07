@@ -9,10 +9,10 @@ class LawTextController extends Controller
 {
     public function index()
     {
-        $lawTexts = LawText::orderBy('created_at', 'DESC')->get();
+        $lawTexts = LawText::with('category')->orderBy('created_at', 'DESC')->get();
         return response()->json($lawTexts);
     }
-
+    
     public function store(Request $request)
     {
         $validatedData = $request->validate([

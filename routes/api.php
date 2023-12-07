@@ -89,6 +89,8 @@ Route::get('notarizedDocuments/customer-{customerId}', [NotarizedDocumentControl
 Route::apiResource('notarizedDocuments', NotarizedDocumentController::class);
 Route::post('notarizedDocuments/{id}', [NotarizedDocumentController::class, 'update']); 
 Route::post('generateDocument/{id}', [NotarizedDocumentController::class, 'generateDocument']);
+Route::put('/cancelDocument/{id}', [NotarizedDocumentController::class, 'cancelDocument']);
+
 
 Route::get('check-customer/{customer_id}', [ReviewController::class, 'checkCustomerNotarizedDocument']); 
 Route::apiResource('reviews', ReviewController::class); 
@@ -117,7 +119,9 @@ Route::get('/cities/{city_id}', [AddressController::class, 'district']);
 Route::get('/districts/{district_id}', [AddressController::class, 'ward']);
 
 
-Route::post('/update-env-config', [EnvConfigController::class, 'updateEnvConfig']);
+Route::post('/update-drive-config', [EnvConfigController::class, 'updateDriveConfig']);
+Route::post('/update-mail-config', [EnvConfigController::class, 'updateMailConfig']);
+
 
 
 

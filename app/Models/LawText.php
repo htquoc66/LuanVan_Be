@@ -22,4 +22,9 @@ class LawText extends Model
     {
         return $this->belongsToMany(NotarizedDocument::class, 'law_text_notarized_document', 'law_text_id', 'notarized_document_id');
     }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
 }

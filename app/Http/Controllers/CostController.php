@@ -83,7 +83,9 @@ class CostController extends Controller
             return response()->json(['error' => 'Chi phí không tồn tại'], 404);
         }
 
-        $cost->delete();
+       
+        // Cập nhật cột 'deleted' thành true thay vì xóa 
+        $cost->update(['deleted' => true]);
         return response()->json(['success' => true], 200);
     }
 }

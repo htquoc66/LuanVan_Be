@@ -14,7 +14,7 @@ class AppointmentController extends Controller
 {
     public function index()
     {
-        $appointments = Appointment::with(['customer', 'date', 'time'])
+        $appointments = Appointment::with(['customer', 'date', 'time'])->orderBy('created_at', 'DESC')
             ->get();
 
         return response()->json($appointments);

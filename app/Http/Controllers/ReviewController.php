@@ -113,15 +113,14 @@ class ReviewController extends Controller
     
         // Đếm số lượng hồ sơ trong bảng `customer_notarized_document` với `customer_id` cụ thể
         $documentCount = CustomerNotarizedDocument::where('customer_id', $customer_id)->count();
-    
+        // return $reviewCount;
         // So sánh số lượng hồ sơ và số lượng đánh giá
-        if ($documentCount >= $reviewCount) {
+        if ($reviewCount >= $documentCount ) {
             // Không thể đánh giá thêm
             return response()->json(['success' => false]);          
         } else {
             // Có thể đánh giá
             return response()->json(['success' => true]);
-          
         }
     }
     

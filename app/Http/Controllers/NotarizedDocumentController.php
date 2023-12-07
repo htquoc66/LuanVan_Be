@@ -121,22 +121,28 @@ class NotarizedDocumentController extends Controller
 
             // bên A
             $customersA = $request['customersA'];
-            foreach($customersA as $value){
-                $customerNotarizedDocument = new CustomerNotarizedDocument;
-                $customerNotarizedDocument->notarized_document_id =  $notarizedDocument->id;
-                $customerNotarizedDocument->customer_id = $value['id'];
-                $customerNotarizedDocument->description = "customerA";
-                $customerNotarizedDocument->save();
+         // Kiểm tra xem $customersA có tồn tại và có phần tử không
+            if (isset($customersA) && count($customersA) > 0) {
+                foreach ($customersA as $value) {
+                    $customerNotarizedDocument = new CustomerNotarizedDocument;
+                    $customerNotarizedDocument->notarized_document_id =  $notarizedDocument->id;
+                    $customerNotarizedDocument->customer_id = $value['id'];
+                    $customerNotarizedDocument->description = "customerA";
+                    $customerNotarizedDocument->save();
+                }
             }
             // bên B
             $customersB = $request['customersB'];
-            foreach($customersB as $value){
-                $customerNotarizedDocument = new CustomerNotarizedDocument;
-                $customerNotarizedDocument->notarized_document_id =  $notarizedDocument->id;
-                $customerNotarizedDocument->customer_id = $value['id'];
-                $customerNotarizedDocument->description = "customerB";
-                $customerNotarizedDocument->save();
-            }
+            if (isset($customersB) && count($customersB) > 0) {
+
+                foreach($customersB as $value){
+                    $customerNotarizedDocument = new CustomerNotarizedDocument;
+                    $customerNotarizedDocument->notarized_document_id =  $notarizedDocument->id;
+                    $customerNotarizedDocument->customer_id = $value['id'];
+                    $customerNotarizedDocument->description = "customerB";
+                    $customerNotarizedDocument->save();
+                }
+             }
 
             return response()->json(['success' => true], 201);
    
@@ -211,25 +217,30 @@ class NotarizedDocumentController extends Controller
                 $lawTextNotarizedDocument->save();
             }
 
-            // bên A
-            $customersA = $request['customersA'];
-            foreach($customersA as $value){
-                $customerNotarizedDocument = new CustomerNotarizedDocument;
-                $customerNotarizedDocument->notarized_document_id =  $notarizedDocument->id;
-                $customerNotarizedDocument->customer_id = $value['id'];
-                $customerNotarizedDocument->description = "customerA";
-                $customerNotarizedDocument->save();
-            }
-            // bên B
-            $customersB = $request['customersB'];
-            foreach($customersB as $value){
-                $customerNotarizedDocument = new CustomerNotarizedDocument;
-                $customerNotarizedDocument->notarized_document_id =  $notarizedDocument->id;
-                $customerNotarizedDocument->customer_id = $value['id'];
-                $customerNotarizedDocument->description = "customerB";
-                $customerNotarizedDocument->save();
-            }
-            
+          // bên A
+          $customersA = $request['customersA'];
+          // Kiểm tra xem $customersA có tồn tại và có phần tử không
+             if (isset($customersA) && count($customersA) > 0) {
+                 foreach ($customersA as $value) {
+                     $customerNotarizedDocument = new CustomerNotarizedDocument;
+                     $customerNotarizedDocument->notarized_document_id =  $notarizedDocument->id;
+                     $customerNotarizedDocument->customer_id = $value['id'];
+                     $customerNotarizedDocument->description = "customerA";
+                     $customerNotarizedDocument->save();
+                 }
+             }
+             // bên B
+             $customersB = $request['customersB'];
+             if (isset($customersB) && count($customersB) > 0) {
+ 
+                 foreach($customersB as $value){
+                     $customerNotarizedDocument = new CustomerNotarizedDocument;
+                     $customerNotarizedDocument->notarized_document_id =  $notarizedDocument->id;
+                     $customerNotarizedDocument->customer_id = $value['id'];
+                     $customerNotarizedDocument->description = "customerB";
+                     $customerNotarizedDocument->save();
+                 }
+              }
             if($request['costs']){
                 $costs = $request['costs'];
                 foreach($costs as $value){
@@ -244,30 +255,7 @@ class NotarizedDocumentController extends Controller
 
     }
     
-    public function destroy($id)
-    {
-        $notarizedDocument = NotarizedDocument::find($id);
 
-        if (!$notarizedDocument) {
-            return response()->json(['success' => false, 'message' => 'Không tìm thấy hồ sơ công chứng'], 404);
-        }
-
-        try {
-            // Xóa tệp tin nếu tồn tại
-            if ($notarizedDocument->file && file_exists(public_path('storage/notarizedDocuments/' . $notarizedDocument->file))) {
-                unlink(public_path('storage/notarizedDocuments/' . $notarizedDocument->file));
-            }
-
-            $notarizedDocument->delete();
-            return response()->json(['success' => true], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Đã xảy ra lỗi khi xóa hồ sơ công chứng',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
 
     private function attachUsers(NotarizedDocument $notarizedDocument, Request $request)
     {
@@ -411,5 +399,63 @@ class NotarizedDocumentController extends Controller
             return false;
         }
     }
+
+    public function destroy($id)
+    {
+        $notarizedDocument = NotarizedDocument::find($id);
+
+        if (!$notarizedDocument) {
+            return response()->json(['success' => false, 'message' => 'Không tìm thấy hồ sơ công chứng'], 404);
+        }
+
+        // Kiểm tra xem trạng thái có phải là 1 trước khi tiến hành xóa
+        if ($notarizedDocument->status == 1) {
+                if ($notarizedDocument->file) {
+                    $this->deleteFileFromGoogleDrive($notarizedDocument->file);
+                }
+
+                // Xóa bản ghi liên quan trong CustomerNotarizedDocument
+                CustomerNotarizedDocument::where('notarized_document_id', $id)->delete();
+
+                // Xóa bản ghi liên quan trong LawTextNotarizedDocument
+                LawTextNotarizedDocument::where('notarized_document_id', $id)->delete();
+
+                // Xóa bản ghi liên quan trong UserNotarizedDocument
+                UserNotarizedDocument::where('notarized_document_id', $id)->delete();
+
+                // Xóa bản ghi chính NotarizedDocument
+                $notarizedDocument->delete();
+
+                // Tuỳ chọn, bạn có thể thêm mã để xóa tệp nếu tồn tại
+
+                return response()->json(['success' => true], 200);
+          
+        } else {
+            return response()->json(['success' => false, 'message' => 'Không thể xóa hồ sơ có trạng thái khác 1'], 400);
+        }
+    }
+
+    public function cancelDocument($id)
+    {
+        $notarizedDocument = NotarizedDocument::find($id);
+
+        if (!$notarizedDocument) {
+            return response()->json(['success' => false, 'message' => 'Không tìm thấy hồ sơ công chứng'], 404);
+        }
+
+        // Kiểm tra xem hồ sơ có bị hủy (trạng thái != 0) chưa
+        if ($notarizedDocument->status != 0) {
+            // Cập nhật trạng thái thành 0 (hủy)
+            $notarizedDocument->update(['status' => 0]);
+
+            // Tuỳ chọn, bạn có thể thêm các logic dọn dẹp bổ sung ở đây
+
+            return response()->json(['success' => true, 'message' => 'Hồ sơ đã bị hủy'], 200);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Hồ sơ đã được hủy trước đó'], 400);
+        }
+    }
+
+
    
 }

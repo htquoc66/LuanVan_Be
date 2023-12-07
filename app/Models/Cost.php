@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Cost extends Model
 {
     use HasFactory;
-    protected $fillable = ['cost_type_id','name', 'price'];
+    protected $fillable = ['cost_type_id','name', 'price', 'deleted'];
 
     public function costType()
     {

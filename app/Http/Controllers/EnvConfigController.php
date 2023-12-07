@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\File;
 
 class EnvConfigController extends Controller
 {
-    public function updateEnvConfig(Request $request)
+    public function updateDriveConfig(Request $request)
     {
         // Lấy các giá trị từ Request
         $clientId = $request->input('client_id');
@@ -56,4 +56,31 @@ class EnvConfigController extends Controller
         return response()->json(['success' => true], 200);
     }
     
+    public function updateMailConfig(Request $request)
+    {
+        // Lấy các giá trị từ Request
+        $mailUsername = $request->input('mail_username');
+        $mailPassword = $request->input('mail_password');
+
+        // Đọc nội dung của tệp .env
+        $envFilePath = base_path('.env');
+        $envContent = File::get($envFilePath);
+
+        // Kiểm tra và cập nhật giá trị trong tệp .env nếu giá trị từ Request khác null
+        if ($mailUsername !== null && $mailUsername !== env('MAIL_USERNAME')) {
+            $envContent = preg_replace("/^MAIL_USERNAME=.*/m", "MAIL_USERNAME=$mailUsername", $envContent);
+        }
+
+        if ($mailPassword !== null && $mailPassword !== env('MAIL_PASSWORD')) {
+            $envContent = preg_replace("/^MAIL_PASSWORD=.*/m", "MAIL_PASSWORD=$mailPassword", $envContent);
+        }
+
+        // Ghi lại tệp .env đã được cập nhật
+        File::put($envFilePath, $envContent);
+
+        // Yêu cầu Laravel làm mới cấu hình
+        Artisan::call('config:clear');
+
+        return response()->json(['success' => true], 200);
+    }
 }
