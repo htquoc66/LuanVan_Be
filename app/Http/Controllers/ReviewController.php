@@ -39,6 +39,7 @@ class ReviewController extends Controller
         $validatedData = $request->validate([
             'customer_id' => 'required',
             'rating' => 'required|numeric',
+            'content'=> ''
         ], [
             'customer_id.required' => 'Trường ID khách hàng là bắt buộc.',
             'rating.required' => 'Trường điểm đánh giá là bắt buộc.',
@@ -68,31 +69,25 @@ class ReviewController extends Controller
 
     public function update(Request $request, $id)
     {
+        // return $request->input('status');
         $review = Review::find($id);
-
+    
         if (!$review) {
             return response()->json(['error' => 'Đánh giá không tồn tại'], 404);
         }
-
-        $validatedData = $request->validate([
-            'customer_id' => 'required',
-            'rating' => 'required|numeric',
-        ], [
-            'customer_id.required' => 'Trường ID khách hàng là bắt buộc.',
-            'rating.required' => 'Trường điểm đánh giá là bắt buộc.',
-            'rating.numeric' => 'Trường điểm đánh giá phải là số.',
-        ]);
-
-        try {
-
-            $review = Review::update($validatedData);
-
-
+    
+        
+            // Lấy giá trị của trường status từ request
+            $newStatus = $request->input('status');
+    
+            // Cập nhật trường status
+            $review->update(['status' => $newStatus]);
+    
             return response()->json(['success' => true], 200);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Đã xảy ra lỗi khi cập nhật đánh giá', 'error' => $e->getMessage()], 500);
-        }
+      
     }
+    
+    
 
     public function destroy($id)
     {

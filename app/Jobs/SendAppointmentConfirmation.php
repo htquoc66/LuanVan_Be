@@ -17,19 +17,22 @@ class SendAppointmentConfirmation implements ShouldQueue
     public $appointmentDate;
     public $appointmentTime;
     public $appointmentContent;
+    public $userName;
 
-    public function __construct($email, $appointmentDate, $appointmentTime, $appointmentContent)
+    public function __construct($email, $appointmentDate, $appointmentTime, $appointmentContent, $userName)
     {
         $this->email = $email;
         $this->appointmentDate = $appointmentDate;
         $this->appointmentTime = $appointmentTime;
         $this->appointmentContent = $appointmentContent;
+        $this->userName = $userName;
+
     }
 
     public function handle()
     {
         Mail::to($this->email) // Địa chỉ người nhận
-            ->send(new AppointmentConfirmationMail($this->email, $this->appointmentDate, $this->appointmentTime, $this->appointmentContent));
+            ->send(new AppointmentConfirmationMail($this->email, $this->appointmentDate, $this->appointmentTime, $this->appointmentContent, $this->userName));
     }
     
 }

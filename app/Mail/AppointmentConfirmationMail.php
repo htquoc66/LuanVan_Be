@@ -14,13 +14,16 @@ class AppointmentConfirmationMail extends Mailable
     public $appointmentDate;
     public $appointmentTime;
     public $appointmentContent;
+    public $userName;
 
-    public function __construct($email, $appointmentDate, $appointmentTime, $appointmentContent)
+    public function __construct($email, $appointmentDate, $appointmentTime, $appointmentContent, $userName)
     {
         $this->email = $email;
         $this->appointmentDate = $appointmentDate;
         $this->appointmentTime = $appointmentTime;
         $this->appointmentContent = $appointmentContent;
+        $this->userName = $userName;
+
     }
 
     public function build()
@@ -32,6 +35,8 @@ class AppointmentConfirmationMail extends Mailable
                 'appointmentDate' => $this->appointmentDate,
                 'appointmentTime' => $this->appointmentTime,
                 'appointmentContent' => $this->appointmentContent,
+                'userName' => $this->userName,
+
             ]);
     }
 }

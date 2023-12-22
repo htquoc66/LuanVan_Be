@@ -83,4 +83,49 @@ class EnvConfigController extends Controller
 
         return response()->json(['success' => true], 200);
     }
+
+    public function getBankInfo()
+    {
+        $accountNo = env('ACCOUNT_NO', 'default_account_no');
+        $accountName = env('ACCOUNT_NAME', 'default_account_name');
+        $acqId = env('ACQ_ID', 'default_acquirer_id');
+
+        $bankInfo = [
+            'accountNo' => $accountNo,
+            'accountName' => $accountName,
+            'acqId' => $acqId,
+        ];
+
+        return response()->json($bankInfo);
+    }
+
+    public function updateBankInfo(Request $request)
+    {
+        $request->validate([
+            'accountNo' => 'required|string',
+            'accountName' => 'required|string',
+            'acqId' => 'required|string',
+        ]);
+
+        $envFile = base_path('.env');
+
+        // Đọc tệp .env
+        $content = file_get_contents($envFile);
+
+        // Thay đổi giá trị
+        $content = preg_replace("/^ACCOUNT_NO=.*/m", "ACCOUNT_NO={$request->input('accountNo')}", $content);
+        $content = preg_replace("/^ACCOUNT_NAME=.*/m", "ACCOUNT_NAME=\"{$request->input('accountName')}\"", $content);
+        $content = preg_replace("/^ACQ_ID=.*/m", "ACQ_ID={$request->input('acqId')}", $content);
+
+        // Ghi lại vào tệp .env
+        file_put_contents($envFile, $content);
+
+        // Clear cache để Laravel nhận biết sự thay đổi
+        Artisan::call('config:clear');
+
+        return response()->json(['success' => true, 'message' => 'Bank info updated successfully']);
+    }
+
+
+   
 }

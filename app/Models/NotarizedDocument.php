@@ -13,6 +13,7 @@ class NotarizedDocument extends Model
         'status',
         'date',
         'total_cost',
+        'reason'
     ];
 
     public function category()

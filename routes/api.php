@@ -65,7 +65,7 @@ Route::post('/admin/login', [StaffController::class, 'login']);
 Route::post('/staff/{idStaff}/roles', [StaffController::class, 'addRoleToStaff']);
 Route::put('/staff/{idStaff}/roles', [StaffController::class, 'updateRoleToStaff']);
 // Lấy nhân viên theo tên vai trò
-Route::get('get-staff-with-permission', [StaffController::class, 'getStaffWithPermission']);
+Route::get('get-staff-with-permission/{idPer}', [StaffController::class, 'getStaffWithPermission']);
 
 Route::apiResource('staffs', StaffController::class);
 // get all permissions
@@ -90,6 +90,7 @@ Route::apiResource('notarizedDocuments', NotarizedDocumentController::class);
 Route::post('notarizedDocuments/{id}', [NotarizedDocumentController::class, 'update']); 
 Route::post('generateDocument/{id}', [NotarizedDocumentController::class, 'generateDocument']);
 Route::put('/cancelDocument/{id}', [NotarizedDocumentController::class, 'cancelDocument']);
+Route::put('/update-status/{id}/{status}', [NotarizedDocumentController::class, 'updateStatus']);
 
 
 Route::get('check-customer/{customer_id}', [ReviewController::class, 'checkCustomerNotarizedDocument']); 
@@ -121,6 +122,9 @@ Route::get('/districts/{district_id}', [AddressController::class, 'ward']);
 
 Route::post('/update-drive-config', [EnvConfigController::class, 'updateDriveConfig']);
 Route::post('/update-mail-config', [EnvConfigController::class, 'updateMailConfig']);
+Route::get('/get-bank-info', [EnvConfigController::class, 'getBankInfo']);
+Route::post('update-bank-info', [EnvConfigController::class, 'updateBankInfo']);
+
 
 
 

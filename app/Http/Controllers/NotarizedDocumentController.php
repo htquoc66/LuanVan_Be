@@ -435,26 +435,56 @@ class NotarizedDocumentController extends Controller
         }
     }
 
-    public function cancelDocument($id)
+    public function cancelDocument(Request $request, $id)
     {
         $notarizedDocument = NotarizedDocument::find($id);
-
+    
         if (!$notarizedDocument) {
             return response()->json(['success' => false, 'message' => 'Không tìm thấy hồ sơ công chứng'], 404);
         }
-
+    
         // Kiểm tra xem hồ sơ có bị hủy (trạng thái != 0) chưa
         if ($notarizedDocument->status != 0) {
-            // Cập nhật trạng thái thành 0 (hủy)
-            $notarizedDocument->update(['status' => 0]);
-
+            // Lấy giá trị 'reason' từ request
+            $reason = $request->input('reason');
+    
+            // Cập nhật trạng thái thành 0 (hủy) và lưu giá trị 'reason'
+            $notarizedDocument->update(['status' => 0, 'reason' => $reason]);
+    
             // Tuỳ chọn, bạn có thể thêm các logic dọn dẹp bổ sung ở đây
-
+    
             return response()->json(['success' => true, 'message' => 'Hồ sơ đã bị hủy'], 200);
         } else {
             return response()->json(['success' => false, 'message' => 'Hồ sơ đã được hủy trước đó'], 400);
         }
     }
+
+    public function updateStatus($id, $status) {
+        // Tìm kiếm NotarizedDocument theo ID
+        $notarizedDocument = NotarizedDocument::with('category')->find($id);
+        // Kiểm tra xem tìm thấy NotarizedDocument không
+        if ($notarizedDocument) {
+            // Nếu trạng thái là 3, xóa các bản ghi liên quan trong bảng CostNotarizedDocument
+            if ($status == 3) {
+                CostNotarizedDocument::where('notarized_document_id', $id)->delete();
+                $notarizedDocument->total_cost = $notarizedDocument->category->price;
+            }
+    
+            // Cập nhật trạng thái của NotarizedDocument
+            $notarizedDocument->status = $status;
+    
+            // Lưu thay đổi vào cơ sở dữ liệu
+            $notarizedDocument->save();
+    
+            // Trả về thông báo JSON cho biết thao tác thành công
+            return response()->json(['success' => true, 'message' => 'Cập nhật trạng thái thành công']);
+        } else {
+            // Trả về thông báo JSON nếu không tìm thấy NotarizedDocument
+            return response()->json(['success' => false, 'message' => 'Không tìm thấy NotarizedDocument']);
+        }
+    }
+    
+
 
 
    

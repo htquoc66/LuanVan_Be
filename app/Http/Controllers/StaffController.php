@@ -170,17 +170,10 @@ class StaffController extends Controller
         return response()->json($user);
     }
 
-    public function getStaffWithPermission(Request $request) {
-        // Xác thực dữ liệu đầu vào
-        $request->validate([
-            'permission_id' => 'required|integer',
-        ]);
-    
-        $permissionId = $request->input('permission_id');
-    
+    public function getStaffWithPermission($idPer) {
         // Lấy danh sách người dùng có quyền cụ thể
-        $users = User::whereHas('roles.permissions', function ($query) use ($permissionId) {
-            $query->where('permission_id', $permissionId);
+        $users = User::whereHas('roles.permissions', function ($query) use ($idPer) {
+            $query->where('permission_id', $idPer);
         })->get();
     
         return response()->json($users);

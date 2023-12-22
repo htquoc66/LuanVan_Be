@@ -56,6 +56,8 @@ class NotarizedDocumentResource extends JsonResource
             'lawTexts' => $this->lawTexts,
             'status' => $this->status,
             'date' => $this->date,
+            'reason' => $this->reason,
+
             'cost_1' => $cost_1,
             'cost_2' => $cost_2,
             'cost_3' => $cost_3,

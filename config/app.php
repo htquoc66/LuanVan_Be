@@ -14,8 +14,17 @@ return [
     | any other location as required by the application or its packages.
     |
     */
+    // 'config' => [
+    //     'bank' => [
+    //         'accountNo' => env('ACCOUNT_NO', 'default_account_no'),
+    //         'accountName' => env('ACCOUNT_NAME', 'default_account_name'),
+    //         'acqId' => env('ACQ_ID', 'default_acquirer_id'),
+    //     ],
+    // ],
+    
 
     'name' => env('APP_NAME', 'Laravel'),
+    
 
     /*
     |--------------------------------------------------------------------------

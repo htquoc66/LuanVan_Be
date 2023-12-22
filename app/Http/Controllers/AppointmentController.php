@@ -68,33 +68,45 @@ class AppointmentController extends Controller
     }
 
     public function update(Request $request, $id)
-{
-    $data = $request->validate([
-        'user_id' => 'required',
-        'status' => 'required'
-    ]);
+    {
+        $data = $request->validate([
+            'user_id' => 'required',
+            'status' => 'required'
+        ]);
 
-    // Tìm cuộc hẹn theo ID
-    $appointment = Appointment::with(['customer', 'date', 'time'])->find($id);
+        // Tìm cuộc hẹn theo ID
+        $appointment = Appointment::with(['customer', 'date', 'time'])->find($id);
+        $user = User::find($data['user_id']);
+        // return ($user->name);
+        if (!$appointment) {
+            return response()->json(['success' => false, 'message' => 'Không tìm thấy cuộc hẹn'], 404);
+        }
 
-    if (!$appointment) {
-        return response()->json(['success' => false, 'message' => 'Không tìm thấy cuộc hẹn'], 404);
+        // Cập nhật user_id và status
+        $appointment->user_id = $data['user_id'];
+        $appointment->status = $data['status'];
+        $appointment->save();
+
+        // Gửi email thông báo cuộc hẹn đã được xác nhận bằng job
+        SendAppointmentConfirmation::dispatch(
+            $appointment->customer->email,
+            $appointment->date->date_field,
+            $appointment->time->time_field,
+            $appointment->content,
+            $user->name
+        ); 
+
+        return response()->json(['success' => true, 'message' => 'User ID và trạng thái cuộc hẹn đã được cập nhật'], 200);
     }
+    public function destroy($id){
+        $appointment = Appointment::find($id);
 
-    // Cập nhật user_id và status
-    $appointment->user_id = $data['user_id'];
-    $appointment->status = $data['status'];
-    $appointment->save();
+        if (!$appointment) {
+            return response()->json(['error' => 'Appointment not found'], 404);
+        }
 
-    // Gửi email thông báo cuộc hẹn đã được xác nhận bằng job
-    SendAppointmentConfirmation::dispatch(
-        $appointment->customer->email,
-        $appointment->date->date_field,
-        $appointment->time->time_field,
-        $appointment->content
-    ); 
-
-    return response()->json(['success' => true, 'message' => 'User ID và trạng thái cuộc hẹn đã được cập nhật'], 200);
-}
+        $appointment->delete();
+        return response()->json(['success' => true], 200);
+    }
 
 }

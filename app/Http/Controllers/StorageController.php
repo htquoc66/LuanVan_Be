@@ -53,6 +53,9 @@ class StorageController extends Controller
         ]);
 
         if ($request->hasFile('file')) {
+            if ($storage->file) {
+                $this->deleteFileFromGoogleDrive($storage->file);
+            }
             $file = $request->file('file');
             $notarizedDocumentId = $storage->notarized_document_id;
 
@@ -121,5 +124,29 @@ class StorageController extends Controller
     public function destroy($id)
     {
        
+    }
+
+
+    function deleteFileFromGoogleDrive($fileId)
+    {
+        // Khởi tạo Google Client
+        $client = new Google_Client();
+        $client->setClientId(env('GOOGLE_DRIVE_CLIENT_ID'));
+        $client->setClientSecret(env('GOOGLE_DRIVE_CLIENT_SECRET'));
+        $client->refreshToken(env('GOOGLE_DRIVE_REFRESH_TOKEN'));
+
+        // Khởi tạo dịch vụ Google Drive
+        $driveService = new Google_Service_Drive($client);
+
+        try {
+            // Sử dụng phương thức 'delete' để xóa tệp
+            $driveService->files->delete($fileId);
+
+            // Trả về true nếu không có lỗi
+            return true;
+        } catch (Exception $e) {
+            // Trả về false nếu có lỗi
+            return false;
+        }
     }
 }
